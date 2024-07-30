@@ -2,6 +2,25 @@ const playlistsContainer = document.getElementById('playlists');
 const createPlaylistBtn = document.getElementById('createPlaylistBtn');
 let playlists = JSON.parse(localStorage.getItem('playlists')) || [];
 
+// SAMPLE DATA --comment out AFTER!!!
+// if (playlists.length === 0) {
+//     playlists = [
+//         {
+//             name: "Rock Classics",
+//             songs: ["Bohemian Rhapsody", "Stairway to Heaven", "Hotel California"]
+//         },
+//         {
+//             name: "Pop Hits",
+//             songs: ["Blinding Lights", "Levitating", "Peaches"]
+//         },
+//         {
+//             name: "Jazz Essentials",
+//             songs: ["So What", "Take Five", "Blue in Green"]
+//         }
+//     ];
+//     savePlaylists();
+// }
+
 //saving playlists to local storage
 function savePlaylists() {
     localStorage.setItem('playlists', JSON.stringify(playlists));
@@ -25,24 +44,6 @@ function renderPlaylists() {
         `;
         playlistsContainer.appendChild(playlistDiv);
     });
-
-    document.querySelectorAll('.deletePlaylistBtn').forEach(button => {
-        button.addEventListener('click', function() {
-            deletePlaylist(this.getAttribute('data-index'));
-        });
-    });
-
-    document.querySelectorAll('.addSongBtn').forEach(button => {
-        button.addEventListener('click', function() {
-            addSong(this.getAttribute('data-index'));
-        });
-    });
-
-    document.querySelectorAll('.deleteSongBtn').forEach(button => {
-        button.addEventListener('click', function() {
-            deleteSong(this.getAttribute('data-playlist-index'), this.getAttribute('data-song-index'));
-        });
-    });
 }
 
 //deleting playlist
@@ -51,11 +52,13 @@ function deletePlaylist(index) {
     savePlaylists();
     renderPlaylists();
 }
+
 //adding a song
 function addSong(index) {
     localStorage.setItem('currentPlaylistIndex', index);
     window.location.href = './search.html';   //accesses the current window location object and sets it ./search.html, window navigation 
 }
+
 //deleting a song
 function deleteSong(playlistIndex, songIndex) {
     //getting songs from selected playlist
@@ -78,6 +81,23 @@ createPlaylistBtn.addEventListener('click', () => {
         playlists.push({ name: playlistName, songs: [] });
         savePlaylists();
         renderPlaylists();
+    }
+});
+
+// Event delegation for playlists container
+playlistsContainer.addEventListener('click', (event) => {
+    if (event.target.classList.contains('deletePlaylistBtn')) {
+        const index = Number(event.target.getAttribute('data-index'));
+        deletePlaylist(index);
+    }
+    if (event.target.classList.contains('addSongBtn')) {
+        const index = Number(event.target.getAttribute('data-index'));
+        addSong(index);
+    }
+    if (event.target.classList.contains('deleteSongBtn')) {
+        const playlistIndex = Number(event.target.getAttribute('data-playlist-index'));
+        const songIndex = Number(event.target.getAttribute('data-song-index'));
+        deleteSong(playlistIndex, songIndex);
     }
 });
 
