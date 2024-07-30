@@ -16,40 +16,53 @@
   </head>
   <body>
     <!-- START OF BODY FOR PAGE -->
-    <!-- NAVIGATION BAR -->
-    <nav class="navbar fixed-top navbar-light bg-light">
-      <a class="navbar-brand">
-        <img
-          src="./images/logo-placeholder-image.png"
-          width="50"
-          height="50"
-          alt=""
-        />
-      </a>
-
-      <div id="login-signup-container">
-        <button
-          onclick="location.href='signup.html'"
-          class="action-button signup-button btn btn-outline-success my-2 my-sm-0"
-          type="submit"
-        >
-          Signup
-        </button>
-        <button
-          onclick="location.href='login.html'"
-          class="login-button btn btn-outline-success my-2 my-sm-0"
-          type="submit"
-        >
-          Login
-        </button>
-      </div>
-    </nav>
-    <!-- WELCOME CONTAINER INITIALLY SHOWING-->
-    <div id="home-screen" class="screen">
-      <h1>Welcome!</h1>
-      <!-- TODO:setup home screen -->
-    </div>
-
+    <!-- MAIN CONTAINER centered both vertically and horizontally -->
+    <main class="d-flex justify-content-center align-items-center vh-100">
+      <!-- Registration form section -->
+      <section class="registration-form p-4 rounded shadow bg-white">
+        <h2 class="text center mb-4">JamPact Sign Up</h2>
+        <form id="registrationForm">
+          <!-- Email input field with label and error message container -->
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              placeholder="Email"
+              required
+            />
+            <small id="emailError" class="form-text text-danger"></small>
+          </div>
+          <!-- Password input field with label and error message container -->
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              class="form-control"
+              placeholder="Password"
+              required
+            />
+            <small id="passwordError" class="form-text text-danger"></small>
+          </div>
+          <!-- File input for avatar with label -->
+          <div class="form-group">
+            <label for="avatar">Avatar</label>
+            <input
+              type="file"
+              id="avatar"
+              class="form-control-file"
+              accept="image/*"
+            />
+          </div>
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-success btn-block">
+            Submit
+          </button>
+        </form>
+      </section>
+    </main>
     <!-- END OF BODY FOR PAGE -->
     <!-- BOOTSTRAP JS -->
     <script
