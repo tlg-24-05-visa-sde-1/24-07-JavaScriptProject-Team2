@@ -1,9 +1,4 @@
 
-/*------------- LOGIN/SIGNUP NAVIGATION ------------*/
-
-
-
-
 /* Added event listener to the form for submit event */
 document.getElementById('registrationForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -58,3 +53,4 @@ document.getElementById('registrationForm').addEventListener('submit', function(
         alert('Registration Successful');
         document.getElementById('registrationForm').reset();
     }
+
