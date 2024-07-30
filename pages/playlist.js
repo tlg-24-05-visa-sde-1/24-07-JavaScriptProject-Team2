@@ -18,9 +18,9 @@ function renderPlaylists() {
             <button class="deletePlaylistBtn" data-index="${index}">Delete Playlist</button>
             <button class="addSongBtn" data-index="${index}">Add Song</button>
             <ul>
-                ${playlist.songs.map((song, songIndex) => {
-                    `<li>${song}<button class="deleteSongBtn" data-playlist-index="${index}" data-song-index="${songIndex}">Delete</button></li>`
-                }).join('')}
+                ${playlist.songs.map((song, songIndex) => `
+                    <li>${song}<button class="deleteSongBtn" data-playlist-index="${index}" data-song-index="${songIndex}">Delete</button></li>
+                `).join('')}
             </ul>
         `;
         playlistsContainer.appendChild(playlistDiv);
@@ -45,19 +45,28 @@ function renderPlaylists() {
     });
 }
 
+//deleting playlist
 function deletePlaylist(index) {
-    playlists.splice(index, 1);
+    playlists = playlists.filter((element, i) => i !== index);
     savePlaylists();
     renderPlaylists();
 }
-
+//adding a song
 function addSong(index) {
     localStorage.setItem('currentPlaylistIndex', index);
-    window.location.href = './search.html';
+    window.location.href = './search.html';   //accesses the current window location object and sets it ./search.html, window navigation 
 }
-
+//deleting a song
 function deleteSong(playlistIndex, songIndex) {
-    playlists[playlistIndex].songs.splice(songIndex, 1);
+    //getting songs from selected playlist
+    let selectedPlaylist = playlists[playlistIndex];
+    let songs = selectedPlaylist.songs;
+
+    //removing selected song, updating songs in the playlist + playlist array
+    let updatedSongs = songs.filter((element, i) => i !== songIndex);
+    selectedPlaylist.songs = updatedSongs;
+    playlists[playlistIndex] = selectedPlaylist;
+
     savePlaylists();
     renderPlaylists();
 }
