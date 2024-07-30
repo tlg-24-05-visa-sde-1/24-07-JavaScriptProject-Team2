@@ -7,7 +7,7 @@ document
 //Login/Signup Event Handler
 function handleLoginSignup(event) {
     const homeScreen = document.getElementById('home-screen');
-    homeScreen.
+  
    
   if (event.target.classList.contains("signup-button")) {
     signupEvent;
