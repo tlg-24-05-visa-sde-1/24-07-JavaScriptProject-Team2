@@ -10,16 +10,40 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="playlist.css" />
+    <link rel="stylesheet" href="../style.css" />
     <!-- JS -->
     <script async defer type="module" src="playlist.js"></script>
   </head>
   <body>
     <!-- START OF BODY FOR PAGE -->
-    <div class="container">
+    <div class="container mt-5">
       <h1>My Playlists</h1>
+      <!-- Playlist creation form -->
+      <form
+        id="createPlaylistForm"
+        class="mb-4"
+        style="display: flex; align-items: center; justify-content: center"
+      >
+        <div
+          class="form-group"
+          style="display: flex; align-items: center; margin-right: 10px"
+        >
+          <label for="playlistName" style="margin-right: 10px"
+            >Add New Playlist:</label
+          >
+          <input
+            type="text"
+            id="playlistName"
+            class="form-control"
+            placeholder="Enter playlist name"
+            required
+            style="width: auto"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Create Playlist</button>
+      </form>
+      <!-- Playlist Container -->
       <div id="playlists"></div>
-      <button id="createPlaylistBtn">Create New Playlist</button>
     </div>
     <!-- NAVIGATION BAR - AT BOTTOM OF PAGE -->
     <nav class="navbar fixed-bottom navbar-light bg-light">
@@ -34,7 +58,6 @@
           onclick="location.href='./home.html'"
         />
       </a>
-
       <a class="navbar-image" href="#">
         <img
           id="searchImage"

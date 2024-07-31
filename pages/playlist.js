@@ -1,32 +1,44 @@
 const playlistsContainer = document.getElementById('playlists');
-const createPlaylistBtn = document.getElementById('createPlaylistBtn');
+const createPlaylistForm = document.getElementById('createPlaylistForm');
 let playlists = JSON.parse(localStorage.getItem('playlists')) || [];
 
-// SAMPLE DATA --comment out AFTER!!!
+// SAMPLE DATA 
 // if (playlists.length === 0) {
 //     playlists = [
 //         {
 //             name: "Rock Classics",
-//             songs: ["Bohemian Rhapsody", "Stairway to Heaven", "Hotel California"]
+//             songs: [
+//                 { name: "Bohemian Rhapsody", artist: "Queen", album: "A Night at the Opera", duration: "5:55", id: "1" },
+//                 { name: "Stairway to Heaven", artist: "Led Zeppelin", album: "Led Zeppelin IV", duration: "8:02", id: "2" },
+//                 { name: "Hotel California", artist: "Eagles", album: "Hotel California", duration: "6:30", id: "3" }
+//             ]
 //         },
 //         {
 //             name: "Pop Hits",
-//             songs: ["Blinding Lights", "Levitating", "Peaches"]
+//             songs: [
+//                 { name: "Blinding Lights", artist: "The Weeknd", album: "After Hours", duration: "3:20", id: "4" },
+//                 { name: "Levitating", artist: "Dua Lipa", album: "Future Nostalgia", duration: "3:23", id: "5" },
+//                 { name: "Peaches", artist: "Justin Bieber", album: "Justice", duration: "3:18", id: "6" }
+//             ]
 //         },
 //         {
 //             name: "Jazz Essentials",
-//             songs: ["So What", "Take Five", "Blue in Green"]
+//             songs: [
+//                 { name: "So What", artist: "Miles Davis", album: "Kind of Blue", duration: "9:22", id: "7" },
+//                 { name: "Take Five", artist: "Dave Brubeck", album: "Time Out", duration: "5:24", id: "8" },
+//                 { name: "Blue in Green", artist: "Bill Evans", album: "Kind of Blue", duration: "5:27", id: "9" }
+//             ]
 //         }
 //     ];
 //     savePlaylists();
 // }
 
-//saving playlists to local storage
+// Saving playlists to local storage
 function savePlaylists() {
     localStorage.setItem('playlists', JSON.stringify(playlists));
 }
 
-//Displaying playlists on the screen
+// Displaying playlists on the screen
 function renderPlaylists() {
     playlistsContainer.innerHTML = '';
     playlists.forEach((playlist, index) => {
@@ -34,11 +46,14 @@ function renderPlaylists() {
         playlistDiv.className = 'playlist';
         playlistDiv.innerHTML = `
             <h2>${playlist.name}</h2>
-            <button class="deletePlaylistBtn" data-index="${index}">Delete Playlist</button>
-            <button class="addSongBtn" data-index="${index}">Add Song</button>
+            <button class="deletePlaylistBtn btn-sm" data-index="${index}">Delete Playlist</button>
+            <button class="addSongBtn  btn-sm" data-index="${index}">Add Song</button>
             <ul>
                 ${playlist.songs.map((song, songIndex) => `
-                    <li>${song}<button class="deleteSongBtn" data-playlist-index="${index}" data-song-index="${songIndex}">Delete</button></li>
+                    <li>
+                        <strong>${song.name}</strong> by ${song.artist} from the album ${song.album} (${song.duration})
+                        <button class="deleteSongBtn btn-sm" data-playlist-index="${index}" data-song-index="${songIndex}">Delete</button>
+                    </li>
                 `).join('')}
             </ul>
         `;
@@ -46,41 +61,37 @@ function renderPlaylists() {
     });
 }
 
-//deleting playlist
+// Deleting playlist
 function deletePlaylist(index) {
     playlists = playlists.filter((element, i) => i !== index);
     savePlaylists();
     renderPlaylists();
 }
 
-//adding a song
+// Adding a song
 function addSong(index) {
     localStorage.setItem('currentPlaylistIndex', index);
-    window.location.href = './search.html';   //accesses the current window location object and sets it ./search.html, window navigation 
+    window.location.href = './search.html'; // navigate to search page
 }
 
-//deleting a song
+// Deleting a song
 function deleteSong(playlistIndex, songIndex) {
-    //getting songs from selected playlist
     let selectedPlaylist = playlists[playlistIndex];
-    let songs = selectedPlaylist.songs;
-
-    //removing selected song, updating songs in the playlist + playlist array
-    let updatedSongs = songs.filter((element, i) => i !== songIndex);
-    selectedPlaylist.songs = updatedSongs;
+    selectedPlaylist.songs = selectedPlaylist.songs.filter((element, i) => i !== songIndex);
     playlists[playlistIndex] = selectedPlaylist;
-
     savePlaylists();
     renderPlaylists();
 }
 
-//creating a new playlist
-createPlaylistBtn.addEventListener('click', () => {
-    const playlistName = prompt('Enter the name of the new playlist:');
+// Creating a new playlist
+createPlaylistForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const playlistName = document.getElementById('playlistName').value;
     if (playlistName) {
         playlists.push({ name: playlistName, songs: [] });
         savePlaylists();
         renderPlaylists();
+        createPlaylistForm.reset();
     }
 });
 
