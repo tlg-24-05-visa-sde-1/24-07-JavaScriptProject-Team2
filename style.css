@@ -8,8 +8,11 @@ body {
     align-items: center;
     height: 100vh;
 }
+h1 {
+    text-align: center;
+}
 
-/* Container styling */
+/* General Container styling */
 .container {
     max-width: 800px;
     margin: 50px auto;
@@ -25,6 +28,19 @@ h1 {
 }
 
 /* Playlist styling */
+
+.playlistContainer {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-top: 50px;
+}
+
+
+
 .playlist {
     border: 1px solid #ddd;
     padding: 10px;
@@ -35,6 +51,10 @@ h1 {
 .playlist h2 {
     margin: 0;
     display: inline;
+}
+
+.playlist button {
+    margin-left: 10px;
 }
 
 .playlist ul {
@@ -48,17 +68,6 @@ h1 {
     padding: 5px 0;
 }
 
-/* Custom button styling */
-.custom-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    margin: 5px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.custom-btn:hover {
-    background-color: #0056b3;
+.playlist li button {
+    margin-left: 10px;
 }
