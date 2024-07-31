@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Music App Home</title>
+    <title>Playlist Page</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -12,18 +12,39 @@
     />
     <link rel="stylesheet" href="../style.css" />
     <!-- JS -->
-    <script async defer type="module" src="script.js"></script>
+    <script async defer type="module" src="playlist.js"></script>
   </head>
   <body>
     <!-- START OF BODY FOR PAGE -->
-    <div class="content">
-      <div id="welcome-screen" class="screen">
-        <h1>Welcome Back!</h1>
-        <p>Explore your music, manage your playlists, and more.</p>
-        <!-- TODO:setup welcome screen -->
-      </div>
+    <div class="playlistContainer mt-5">
+      <h1>My Playlists</h1>
+      <!-- Playlist creation form -->
+      <form
+        id="createPlaylistForm"
+        class="mb-4"
+        style="display: flex; align-items: center; justify-content: center"
+      >
+        <div
+          class="form-group"
+          style="display: flex; align-items: center; margin-right: 10px"
+        >
+          <label for="playlistName" style="margin-right: 10px"
+            >Add New Playlist:</label
+          >
+          <input
+            type="text"
+            id="playlistName"
+            class="form-control"
+            placeholder="Enter playlist name"
+            required
+            style="width: auto"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Create Playlist</button>
+      </form>
+      <!-- Playlist Container -->
+      <div id="playlists"></div>
     </div>
-    <!-- NAVIGATION BAR - AT BOTTOM OF PAGE -->
     <!-- NAVIGATION BAR - AT BOTTOM OF PAGE -->
     <nav class="navbar fixed-bottom navbar-light bg-light">
       <a class="navbar-image" href="#">
