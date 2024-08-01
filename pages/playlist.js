@@ -1,36 +1,41 @@
+import { getSpotifyPlaylist, getAlbumArt } from '../spotifySearch.js';
+
 const playlistsContainer = document.getElementById('playlists');
 const createPlaylistForm = document.getElementById('createPlaylistForm');
 let playlists = JSON.parse(localStorage.getItem('playlists')) || [];
+let savedFeaturedPlaylists = JSON.parse(localStorage.getItem('jampactPlaylists')) || [];
 
-// SAMPLE DATA 
-if (playlists.length === 0) {
-    playlists = [
-        {
-            name: "Rock Classics",
-            songs: [
-                { name: "Bohemian Rhapsody", artist: "Queen", album: "A Night at the Opera", duration: "5:55", id: "7tFiyTwD0nx5a1eklYtX2J" },
-                { name: "Stairway to Heaven", artist: "Led Zeppelin", album: "Led Zeppelin IV", duration: "8:02", id: "5CQ30WqJwcep0pYcV4AMNc" },
-                { name: "Hotel California", artist: "Eagles", album: "Hotel California", duration: "6:30", id: "40riOy7x9W7GXjyGp4pjAv" }
-            ]
-        },
-        {
-            name: "Pop Hits",
-            songs: [
-                { name: "Blinding Lights", artist: "The Weeknd", album: "After Hours", duration: "3:20", id: "0VjIjW4GlUZAMYd2vXMi3b" },
-                { name: "Levitating", artist: "Dua Lipa", album: "Future Nostalgia", duration: "3:23", id: "463CkQjx2Zk1yXoBuierM9" },
-                { name: "Peaches", artist: "Justin Bieber", album: "Justice", duration: "3:18", id: "4iJyoBOLtHqaGxP12qzhQI" }
-            ]
-        },
-        {
-            name: "Jazz Essentials",
-            songs: [
-                { name: "So What", artist: "Miles Davis", album: "Kind of Blue", duration: "9:22", id: "1j7FJYqTzWqFIqKpx6ehim" },
-                { name: "Take Five", artist: "Dave Brubeck", album: "Time Out", duration: "5:24", id: "3RBlTvr5f7syHp8bTyzbZs" },
-                { name: "Blue in Green", artist: "Bill Evans", album: "Kind of Blue", duration: "5:27", id: "1eTMa3gUgIeOJGOc9s3I5D" }
-            ]
+// check and adding any saved featured playlists into playlists
+if (savedFeaturedPlaylists.length > 0) {
+    addSavedFeaturedPlaylists(savedFeaturedPlaylists).then(() => {
+        clearSavedFeaturedPlaylists();
+    });
+}
+
+function clearSavedFeaturedPlaylists() {
+    savedFeaturedPlaylists = [];
+    localStorage.setItem('jampactPlaylists', JSON.stringify(savedFeaturedPlaylists));
+}
+
+// Adding saved featured playlists
+async function addSavedFeaturedPlaylists(playlistIds) {
+    for (const playlistId of playlistIds) {
+        if (!playlists.some(playlist => playlist.id === playlistId)) {
+            await addSpotifyPlaylist(playlistId);
         }
-    ];
-    savePlaylists();
+    }
+}
+
+// Adding a playlist from Spotify to the user's playlists
+async function addSpotifyPlaylist(playlistId) {
+    try {
+        const newPlaylist = await getSpotifyPlaylist(playlistId);
+        playlists.push({ ...newPlaylist, id: playlistId }); // Store playlistId to avoid duplicates
+        savePlaylists();
+        renderPlaylists();
+    } catch (error) {
+        console.error('Error adding featured playlist:', error);
+    }
 }
 
 // Saving playlists to local storage
@@ -38,35 +43,68 @@ function savePlaylists() {
     localStorage.setItem('playlists', JSON.stringify(playlists));
 }
 
+// Function to get album art and display it
+async function displayAlbumArt(songId) {
+    try {
+        const albumArtUrl = await getAlbumArt(songId);
+        return albumArtUrl;
+    } catch (error) {
+        console.error('Error fetching album art:', error);
+        return 'https://via.placeholder.com/100'; // Placeholder in case of error
+    }
+}
+
 // Displaying playlists on the screen
-function renderPlaylists() {
+async function renderPlaylists() {
     playlistsContainer.innerHTML = '';
-    playlists.forEach((playlist, index) => {
+    for (const playlist of playlists) {
         const playlistDiv = document.createElement('div');
         playlistDiv.className = 'playlist';
         playlistDiv.innerHTML = `
-            <h2>${playlist.name}</h2>
-            <button class="deletePlaylistBtn btn-sm" data-index="${index}">Delete Playlist</button>
-            <button class="addSongBtn btn-sm" data-index="${index}">Add Song</button>
-            <ul>
-                ${playlist.songs.map((song, songIndex) => `
-                    <li>
-                        <strong>${song.name}</strong> by ${song.artist} from the album ${song.album} (${song.duration})
-                        <button class="deleteSongBtn btn-sm" data-playlist-index="${index}" data-song-index="${songIndex}">Delete</button>
-                        <button class="playSongBtn btn-sm" data-song-id="${song.id}">Play</button>
-                    </li>
-                `).join('')}
-            </ul>
+            <div class="playlist-header">
+                <h2>${playlist.name}</h2>
+                <div class="buttonContainer">
+                    <button class="addSongBtn btn-sm" data-index="${playlists.indexOf(playlist)}">Add Song</button>
+                    <button class="deletePlaylistBtn btn-sm" data-index="${playlists.indexOf(playlist)}">Delete Playlist</button>
+                </div>
+            </div>
+            <div class="playlist-table">
+                <div class="playlist-table-header">
+                    <div class="playlist-table-col">Album Art</div>
+                    <div class="playlist-table-col">Name</div>
+                    <div class="playlist-table-col">Artist/Band</div>
+                </div>
+                <ul>
+                    ${playlist.songs.map((song, songIndex) => `
+                        <li class="d-flex align-items-center">
+                            <div class="playlist-table-col">
+                                <img src="https://via.placeholder.com/100" alt="${song.album}" class="album-art img-fluid d-none d-md-block" data-song-id="${song.id}" width="100" height="100">
+                            </div>
+                            <div class="playlist-table-col">${song.name}</div>
+                            <div class="playlist-table-col d-none d-md-block">${song.artist}</div>
+                            <div class="buttonContainer ms-auto">
+                                <button class="playSongBtn btn-sm" data-song-id="${song.id}">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="deleteSongBtn btn-sm" data-playlist-index="${playlists.indexOf(playlist)}" data-song-index="${songIndex}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
         `;
         playlistsContainer.appendChild(playlistDiv);
-    });
-}
 
-// Deleting playlist
-function deletePlaylist(index) {
-    playlists = playlists.filter((element, i) => i !== index);
-    savePlaylists();
-    renderPlaylists();
+        // Fetch and display album art for each song
+        const imgElements = playlistDiv.querySelectorAll('.album-art');
+        for (const img of imgElements) {
+            const songId = img.getAttribute('data-song-id');
+            const albumArtUrl = await displayAlbumArt(songId);
+            img.src = albumArtUrl;
+        }
+    }
 }
 
 // Adding a song
@@ -106,21 +144,21 @@ createPlaylistForm.addEventListener('submit', (event) => {
 
 // Event delegation for playlists container
 playlistsContainer.addEventListener('click', (event) => {
-    if (event.target.classList.contains('deletePlaylistBtn')) {
-        const index = Number(event.target.getAttribute('data-index'));
+    if (event.target.closest('.deletePlaylistBtn')) {
+        const index = Number(event.target.closest('.deletePlaylistBtn').getAttribute('data-index'));
         deletePlaylist(index);
     }
-    if (event.target.classList.contains('addSongBtn')) {
-        const index = Number(event.target.getAttribute('data-index'));
+    if (event.target.closest('.addSongBtn')) {
+        const index = Number(event.target.closest('.addSongBtn').getAttribute('data-index'));
         addSong(index);
     }
-    if (event.target.classList.contains('deleteSongBtn')) {
-        const playlistIndex = Number(event.target.getAttribute('data-playlist-index'));
-        const songIndex = Number(event.target.getAttribute('data-song-index'));
+    if (event.target.closest('.deleteSongBtn')) {
+        const playlistIndex = Number(event.target.closest('.deleteSongBtn').getAttribute('data-playlist-index'));
+        const songIndex = Number(event.target.closest('.deleteSongBtn').getAttribute('data-song-index'));
         deleteSong(playlistIndex, songIndex);
     }
-    if (event.target.classList.contains('playSongBtn')) {
-        const songId = event.target.getAttribute('data-song-id');
+    if (event.target.closest('.playSongBtn')) {
+        const songId = event.target.closest('.playSongBtn').getAttribute('data-song-id');
         playSong(songId);
     }
 });
