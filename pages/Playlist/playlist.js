@@ -2,22 +2,29 @@ import { getSpotifyPlaylist, getAlbumArt } from '../../spotifySearch.js';
 
 const playlistsContainer = document.getElementById('playlists');
 const createPlaylistForm = document.getElementById('createPlaylistForm');
-let playlists = JSON.parse(localStorage.getItem('playlists')) || [];
-let savedFeaturedPlaylists = JSON.parse(localStorage.getItem('jampactPlaylists')) || [];
+let playlists = [];
+let savedFeaturedPlaylists = [];
 
-// check and adding any saved featured playlists into playlists
-if (savedFeaturedPlaylists.length > 0) {
-    addSavedFeaturedPlaylists(savedFeaturedPlaylists).then(() => {
-        clearSavedFeaturedPlaylists();
-    });
+// Function to check and load local storage data
+function checkLocalStorage() {
+    playlists = JSON.parse(localStorage.getItem('playlists')) || [];
+    savedFeaturedPlaylists = JSON.parse(localStorage.getItem('jampactPlaylists')) || [];
+
+    // Check and add any saved featured playlists into playlists
+    if (savedFeaturedPlaylists.length > 0) {
+        addSavedFeaturedPlaylists(savedFeaturedPlaylists).then(() => {
+            clearSavedFeaturedPlaylists();
+        });
+    }
 }
 
+// Clear saved featured playlists
 function clearSavedFeaturedPlaylists() {
     savedFeaturedPlaylists = [];
     localStorage.setItem('jampactPlaylists', JSON.stringify(savedFeaturedPlaylists));
 }
 
-// Adding saved featured playlists
+// Add saved featured playlists
 async function addSavedFeaturedPlaylists(playlistIds) {
     for (const playlistId of playlistIds) {
         if (!playlists.some(playlist => playlist.id === playlistId)) {
@@ -26,7 +33,7 @@ async function addSavedFeaturedPlaylists(playlistIds) {
     }
 }
 
-// Adding a playlist from Spotify to the user's playlists
+// Add a playlist from Spotify to the user's playlists
 async function addSpotifyPlaylist(playlistId) {
     try {
         const newPlaylist = await getSpotifyPlaylist(playlistId);
@@ -38,7 +45,7 @@ async function addSpotifyPlaylist(playlistId) {
     }
 }
 
-// Saving playlists to local storage
+// Save playlists to local storage
 function savePlaylists() {
     localStorage.setItem('playlists', JSON.stringify(playlists));
 }
@@ -54,7 +61,7 @@ async function displayAlbumArt(songId) {
     }
 }
 
-// Displaying playlists on the screen
+// Display playlists on the screen
 async function renderPlaylists() {
     playlistsContainer.innerHTML = '';
     for (const playlist of playlists) {
@@ -107,13 +114,13 @@ async function renderPlaylists() {
     }
 }
 
-// Adding a song
+// Add a song
 function addSong(index) {
     localStorage.setItem('currentPlaylistIndex', index);
-    window.location.href = './search.html'; // navigate to search page
+    window.location.href = '../Search/search.html'; // Navigate to search page
 }
 
-// Deleting a song
+// Delete a song
 function deleteSong(playlistIndex, songIndex) {
     let selectedPlaylist = playlists[playlistIndex];
     selectedPlaylist.songs = selectedPlaylist.songs.filter((element, i) => i !== songIndex);
@@ -130,7 +137,14 @@ function playSong(songId) {
     `;
 }
 
-// Creating a new playlist
+// Delete a playlist
+function deletePlaylist(index) {
+    playlists = playlists.filter((_, i) => i !== index);
+    savePlaylists();
+    renderPlaylists();
+}
+
+// Create a new playlist
 createPlaylistForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const playlistName = document.getElementById('playlistName').value;
@@ -163,5 +177,6 @@ playlistsContainer.addEventListener('click', (event) => {
     }
 });
 
-// Initial render of playlists
+// Initial check and render of playlists
+checkLocalStorage();
 renderPlaylists();
