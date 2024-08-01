@@ -45,22 +45,35 @@ function renderPlaylists() {
         const playlistDiv = document.createElement('div');
         playlistDiv.className = 'playlist';
         playlistDiv.innerHTML = `
-            <h2>${playlist.name}</h2>
-            <div class="buttonContainer">
-                <button class="deletePlaylistBtn btn-sm" data-index="${index}">Delete Playlist</button>
-                <button class="addSongBtn btn-sm" data-index="${index}">Add Song</button>
+            <div class="playlist-header">
+                <h2>${playlist.name}</h2>
+                <div class="buttonContainer">
+                    <button class="addSongBtn btn-sm" data-index="${index}">Add Song</button>
+                    <button class="deletePlaylistBtn btn-sm" data-index="${index}">Delete Playlist</button>
+                </div>
             </div>
-            <ul>
-                ${playlist.songs.map((song, songIndex) => `
-                    <li>
-                        <strong>${song.name}</strong> by ${song.artist} from the album ${song.album}
-                        <div class="buttonContainer">
-                            <button class="playSongBtn btn-sm" data-song-id="${song.id}">Play</button>
-                            <button class="deleteSongBtn btn-sm" data-playlist-index="${index}" data-song-index="${songIndex}">Delete</button>
-                        </div>
-                    </li>
-                `).join('')}
-            </ul>
+            <div class="playlist-table">
+                <div class="playlist-table-header">
+                    <div class="playlist-table-col">Name</div>
+                    <div class="playlist-table-col">Artist/Band</div>
+                </div>
+                <ul>
+                    ${playlist.songs.map((song, songIndex) => `
+                        <li>
+                            <div class="buttonContainer">
+                                <button class="playSongBtn btn-sm" data-song-id="${song.id}">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="deleteSongBtn btn-sm" data-playlist-index="${index}" data-song-index="${songIndex}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            <div class="playlist-table-col">${song.name}</div>
+                            <div class="playlist-table-col">${song.artist}</div>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
         `;
         playlistsContainer.appendChild(playlistDiv);
     });
@@ -110,21 +123,21 @@ createPlaylistForm.addEventListener('submit', (event) => {
 
 // Event delegation for playlists container
 playlistsContainer.addEventListener('click', (event) => {
-    if (event.target.classList.contains('deletePlaylistBtn')) {
-        const index = Number(event.target.getAttribute('data-index'));
+    if (event.target.closest('.deletePlaylistBtn')) {
+        const index = Number(event.target.closest('.deletePlaylistBtn').getAttribute('data-index'));
         deletePlaylist(index);
     }
-    if (event.target.classList.contains('addSongBtn')) {
-        const index = Number(event.target.getAttribute('data-index'));
+    if (event.target.closest('.addSongBtn')) {
+        const index = Number(event.target.closest('.addSongBtn').getAttribute('data-index'));
         addSong(index);
     }
-    if (event.target.classList.contains('deleteSongBtn')) {
-        const playlistIndex = Number(event.target.getAttribute('data-playlist-index'));
-        const songIndex = Number(event.target.getAttribute('data-song-index'));
+    if (event.target.closest('.deleteSongBtn')) {
+        const playlistIndex = Number(event.target.closest('.deleteSongBtn').getAttribute('data-playlist-index'));
+        const songIndex = Number(event.target.closest('.deleteSongBtn').getAttribute('data-song-index'));
         deleteSong(playlistIndex, songIndex);
     }
-    if (event.target.classList.contains('playSongBtn')) {
-        const songId = event.target.getAttribute('data-song-id');
+    if (event.target.closest('.playSongBtn')) {
+        const songId = event.target.closest('.playSongBtn').getAttribute('data-song-id');
         playSong(songId);
     }
 });

@@ -6,15 +6,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
+
 h1 {
     text-align: center;
 }
 
-/* General Container styling */
+/* General container styling */
 .container {
-    max-width: 800px;
+    width: 80%;
+    max-width: 1200px;
     margin: 50px auto;
     padding: 20px;
     background-color: #fff;
@@ -22,15 +24,24 @@ h1 {
     border-radius: 8px;
 }
 
-/* Header styling */
-h1 {
-    text-align: center;
+/* Navbar visibility */
+.custom-navbar {
+    visibility: hidden;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 20px;
+}
+
+#login-signup-container {
+    visibility: visible;
+    display: flex;
+    gap: 10px;
 }
 
 /* Playlist styling */
-
 .playlistContainer {
-    max-width: 800px;
+    width: 100%;
+    max-width: 1200px;
     margin: auto;
     padding: 20px;
     background-color: #fff;
@@ -46,25 +57,30 @@ h1 {
     border-radius: 4px;
 }
 
-.playlist h2 {
-    margin: 0;
-    display: inline;
-    font-size: 1.2em; /* Adjust as needed */
-    
-}
-
-.playlist .buttonContainer {
+.playlist-header {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 10px;
 }
 
-.playlist .buttonContainer button {
-    margin-left: 10px;
+.playlist-header h2 {
+    margin: 0;
+    font-size: 1.2em;
 }
 
-.playlist button {
-    margin-left: 10px;
+.playlist-table {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.playlist-table-header,
+.playlist-table-col {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-weight: bold;
 }
 
 .playlist ul {
@@ -74,11 +90,22 @@ h1 {
 
 .playlist li {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    padding: 5px 0;
+    padding: 10px 0;
+}
+
+.buttonContainer {
+    margin-right: 10px;
 }
 
 .playlist li button {
-    margin-left: 10px;
-    
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #333;
+}
+
+.playlist li button:hover {
+    color: #007bff;
 }
