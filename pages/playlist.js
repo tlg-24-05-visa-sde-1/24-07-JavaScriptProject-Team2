@@ -1,36 +1,41 @@
+import { getSpotifyPlaylist, getAlbumArt } from '../spotifySearch.js';
+
 const playlistsContainer = document.getElementById('playlists');
 const createPlaylistForm = document.getElementById('createPlaylistForm');
 let playlists = JSON.parse(localStorage.getItem('playlists')) || [];
+let savedFeaturedPlaylists = JSON.parse(localStorage.getItem('jampactPlaylists')) || [];
 
-// SAMPLE DATA 
-if (playlists.length === 0) {
-    playlists = [
-        {
-            name: "Rock Classics",
-            songs: [
-                { name: "Bohemian Rhapsody", artist: "Queen", album: "A Night at the Opera", id: "7tFiyTwD0nx5a1eklYtX2J" },
-                { name: "Stairway to Heaven", artist: "Led Zeppelin", album: "Led Zeppelin IV", id: "5CQ30WqJwcep0pYcV4AMNc" },
-                { name: "Hotel California", artist: "Eagles", album: "Hotel California", id: "40riOy7x9W7GXjyGp4pjAv" }
-            ]
-        },
-        {
-            name: "Pop Hits",
-            songs: [
-                { name: "Blinding Lights", artist: "The Weeknd", album: "After Hours", id: "0VjIjW4GlUZAMYd2vXMi3b" },
-                { name: "Levitating", artist: "Dua Lipa", album: "Future Nostalgia", id: "463CkQjx2Zk1yXoBuierM9" },
-                { name: "Peaches", artist: "Justin Bieber", album: "Justice", id: "4iJyoBOLtHqaGxP12qzhQI" }
-            ]
-        },
-        {
-            name: "Jazz Essentials",
-            songs: [
-                { name: "So What", artist: "Miles Davis", album: "Kind of Blue", id: "1j7FJYqTzWqFIqKpx6ehim" },
-                { name: "Take Five", artist: "Dave Brubeck", album: "Time Out", id: "3RBlTvr5f7syHp8bTyzbZs" },
-                { name: "Blue in Green", artist: "Bill Evans", album: "Kind of Blue", id: "1eTMa3gUgIeOJGOc9s3I5D" }
-            ]
+// check and adding any saved featured playlists into playlists
+if (savedFeaturedPlaylists.length > 0) {
+    addSavedFeaturedPlaylists(savedFeaturedPlaylists).then(() => {
+        clearSavedFeaturedPlaylists();
+    });
+}
+
+function clearSavedFeaturedPlaylists() {
+    savedFeaturedPlaylists = [];
+    localStorage.setItem('jampactPlaylists', JSON.stringify(savedFeaturedPlaylists));
+}
+
+// Adding saved featured playlists
+async function addSavedFeaturedPlaylists(playlistIds) {
+    for (const playlistId of playlistIds) {
+        if (!playlists.some(playlist => playlist.id === playlistId)) {
+            await addSpotifyPlaylist(playlistId);
         }
-    ];
-    savePlaylists();
+    }
+}
+
+// Adding a playlist from Spotify to the user's playlists
+async function addSpotifyPlaylist(playlistId) {
+    try {
+        const newPlaylist = await getSpotifyPlaylist(playlistId);
+        playlists.push({ ...newPlaylist, id: playlistId }); // Store playlistId to avoid duplicates
+        savePlaylists();
+        renderPlaylists();
+    } catch (error) {
+        console.error('Error adding featured playlist:', error);
+    }
 }
 
 // Saving playlists to local storage
@@ -38,18 +43,29 @@ function savePlaylists() {
     localStorage.setItem('playlists', JSON.stringify(playlists));
 }
 
+// Function to get album art and display it
+async function displayAlbumArt(songId) {
+    try {
+        const albumArtUrl = await getAlbumArt(songId);
+        return albumArtUrl;
+    } catch (error) {
+        console.error('Error fetching album art:', error);
+        return 'https://via.placeholder.com/100'; // Placeholder in case of error
+    }
+}
+
 // Displaying playlists on the screen
-function renderPlaylists() {
+async function renderPlaylists() {
     playlistsContainer.innerHTML = '';
-    playlists.forEach((playlist, index) => {
+    for (const playlist of playlists) {
         const playlistDiv = document.createElement('div');
         playlistDiv.className = 'playlist';
         playlistDiv.innerHTML = `
             <div class="playlist-header">
                 <h2>${playlist.name}</h2>
                 <div class="buttonContainer">
-                    <button class="addSongBtn btn-sm" data-index="${index}">Add Song</button>
-                    <button class="deletePlaylistBtn btn-sm" data-index="${index}">Delete Playlist</button>
+                    <button class="addSongBtn btn-sm" data-index="${playlists.indexOf(playlist)}">Add Song</button>
+                    <button class="deletePlaylistBtn btn-sm" data-index="${playlists.indexOf(playlist)}">Delete Playlist</button>
                 </div>
             </div>
             <div class="playlist-table">
@@ -62,7 +78,7 @@ function renderPlaylists() {
                     ${playlist.songs.map((song, songIndex) => `
                         <li class="d-flex align-items-center">
                             <div class="playlist-table-col">
-                                <img src="https://via.placeholder.com/50" alt="${song.album}" class="album-art img-fluid d-none d-md-block">
+                                <img src="https://via.placeholder.com/100" alt="${song.album}" class="album-art img-fluid d-none d-md-block" data-song-id="${song.id}" width="100" height="100">
                             </div>
                             <div class="playlist-table-col">${song.name}</div>
                             <div class="playlist-table-col d-none d-md-block">${song.artist}</div>
@@ -70,7 +86,7 @@ function renderPlaylists() {
                                 <button class="playSongBtn btn-sm" data-song-id="${song.id}">
                                     <i class="fas fa-play"></i>
                                 </button>
-                                <button class="deleteSongBtn btn-sm" data-playlist-index="${index}" data-song-index="${songIndex}">
+                                <button class="deleteSongBtn btn-sm" data-playlist-index="${playlists.indexOf(playlist)}" data-song-index="${songIndex}">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
@@ -80,14 +96,15 @@ function renderPlaylists() {
             </div>
         `;
         playlistsContainer.appendChild(playlistDiv);
-    });
-}
 
-// Deleting playlist
-function deletePlaylist(index) {
-    playlists = playlists.filter((element, i) => i !== index);
-    savePlaylists();
-    renderPlaylists();
+        // Fetch and display album art for each song
+        const imgElements = playlistDiv.querySelectorAll('.album-art');
+        for (const img of imgElements) {
+            const songId = img.getAttribute('data-song-id');
+            const albumArtUrl = await displayAlbumArt(songId);
+            img.src = albumArtUrl;
+        }
+    }
 }
 
 // Adding a song
@@ -145,30 +162,6 @@ playlistsContainer.addEventListener('click', (event) => {
         playSong(songId);
     }
 });
-
-// Function to get the current available playlists
-export function getPlaylists() {
-    return playlists;
-}
-
-// Function to add a song to a selected playlist
-export async function addSongToPlaylist(songId, playlistName) {
-    const songInfo = await searchTrackInfo(songId);
-    const playlist = playlists.find(pl => pl.name === playlistName);
-
-    if (playlist) {
-        playlist.songs.push({
-            name: songInfo.name,
-            artist: songInfo.artist,
-            album: songInfo.album,
-            id: songInfo.id
-        });
-        savePlaylists();
-        renderPlaylists();
-    } else {
-        console.error('Playlist not found');
-    }
-}
 
 // Initial render of playlists
 renderPlaylists();

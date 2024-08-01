@@ -145,3 +145,8 @@ h1 {
     margin-bottom: 0.5rem;
   }
   
+  .album-art {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
