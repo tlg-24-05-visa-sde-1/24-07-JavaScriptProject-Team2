@@ -25,3 +25,57 @@ export async function searchSpotify(type, query) {
     const data = await response.json();
     return data;
 }
+
+// Function to get track information by track ID
+export async function searchTrackInfo(trackId) {
+    const token = await getToken();
+    const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await response.json();
+
+    const trackInfo = {
+        name: data.name,
+        artist: data.artists.map(artist => artist.name).join(', '),
+        album: data.album.name,
+        duration: data.duration_ms,
+        id: data.id
+    };
+
+    return trackInfo;
+}
+
+// Function to get playlist information by playlist ID
+export async function getSpotifyPlaylist(playlistId) {
+    const token = await getToken();
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const playlist = await response.json();
+
+    const playlistInfo = {
+        name: playlist.name,
+        songs: playlist.tracks.items.map(item => ({
+            name: item.track.name,
+            artist: item.track.artists.map(artist => artist.name).join(', '),
+            album: item.track.album.name,
+            id: item.track.id
+        }))
+    };
+
+    return playlistInfo;
+}
+
+// Function to get album art for a given song ID
+export async function getAlbumArt(trackId) {
+    const token = await getToken();
+    const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await response.json();
+    const albumArtUrl = data.album.images[0].url; // Get the first (usually the largest) image URL
+    return albumArtUrl;
+}
