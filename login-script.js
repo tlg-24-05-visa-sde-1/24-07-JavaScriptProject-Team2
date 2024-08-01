@@ -27,6 +27,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
 
     if (userData && userData.email === email && userData.password === password) {
         alert('Login successful');
+        window.location.href = './pages/home.html'; // Redirect to home.html on successful login (J Added)
     } else {
         alert('Invalid email or password try again')
     }

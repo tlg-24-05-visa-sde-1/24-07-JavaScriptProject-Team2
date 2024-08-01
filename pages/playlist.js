@@ -8,25 +8,25 @@ if (playlists.length === 0) {
         {
             name: "Rock Classics",
             songs: [
-                { name: "Bohemian Rhapsody", artist: "Queen", album: "A Night at the Opera", duration: "5:55", id: "7tFiyTwD0nx5a1eklYtX2J" },
-                { name: "Stairway to Heaven", artist: "Led Zeppelin", album: "Led Zeppelin IV", duration: "8:02", id: "5CQ30WqJwcep0pYcV4AMNc" },
-                { name: "Hotel California", artist: "Eagles", album: "Hotel California", duration: "6:30", id: "40riOy7x9W7GXjyGp4pjAv" }
+                { name: "Bohemian Rhapsody", artist: "Queen", album: "A Night at the Opera", id: "7tFiyTwD0nx5a1eklYtX2J" },
+                { name: "Stairway to Heaven", artist: "Led Zeppelin", album: "Led Zeppelin IV", id: "5CQ30WqJwcep0pYcV4AMNc" },
+                { name: "Hotel California", artist: "Eagles", album: "Hotel California", id: "40riOy7x9W7GXjyGp4pjAv" }
             ]
         },
         {
             name: "Pop Hits",
             songs: [
-                { name: "Blinding Lights", artist: "The Weeknd", album: "After Hours", duration: "3:20", id: "0VjIjW4GlUZAMYd2vXMi3b" },
-                { name: "Levitating", artist: "Dua Lipa", album: "Future Nostalgia", duration: "3:23", id: "463CkQjx2Zk1yXoBuierM9" },
-                { name: "Peaches", artist: "Justin Bieber", album: "Justice", duration: "3:18", id: "4iJyoBOLtHqaGxP12qzhQI" }
+                { name: "Blinding Lights", artist: "The Weeknd", album: "After Hours", id: "0VjIjW4GlUZAMYd2vXMi3b" },
+                { name: "Levitating", artist: "Dua Lipa", album: "Future Nostalgia", id: "463CkQjx2Zk1yXoBuierM9" },
+                { name: "Peaches", artist: "Justin Bieber", album: "Justice", id: "4iJyoBOLtHqaGxP12qzhQI" }
             ]
         },
         {
             name: "Jazz Essentials",
             songs: [
-                { name: "So What", artist: "Miles Davis", album: "Kind of Blue", duration: "9:22", id: "1j7FJYqTzWqFIqKpx6ehim" },
-                { name: "Take Five", artist: "Dave Brubeck", album: "Time Out", duration: "5:24", id: "3RBlTvr5f7syHp8bTyzbZs" },
-                { name: "Blue in Green", artist: "Bill Evans", album: "Kind of Blue", duration: "5:27", id: "1eTMa3gUgIeOJGOc9s3I5D" }
+                { name: "So What", artist: "Miles Davis", album: "Kind of Blue", id: "1j7FJYqTzWqFIqKpx6ehim" },
+                { name: "Take Five", artist: "Dave Brubeck", album: "Time Out", id: "3RBlTvr5f7syHp8bTyzbZs" },
+                { name: "Blue in Green", artist: "Bill Evans", album: "Kind of Blue", id: "1eTMa3gUgIeOJGOc9s3I5D" }
             ]
         }
     ];
@@ -46,14 +46,18 @@ function renderPlaylists() {
         playlistDiv.className = 'playlist';
         playlistDiv.innerHTML = `
             <h2>${playlist.name}</h2>
-            <button class="deletePlaylistBtn btn-sm" data-index="${index}">Delete Playlist</button>
-            <button class="addSongBtn btn-sm" data-index="${index}">Add Song</button>
+            <div class="buttonContainer">
+                <button class="deletePlaylistBtn btn-sm" data-index="${index}">Delete Playlist</button>
+                <button class="addSongBtn btn-sm" data-index="${index}">Add Song</button>
+            </div>
             <ul>
                 ${playlist.songs.map((song, songIndex) => `
                     <li>
-                        <strong>${song.name}</strong> by ${song.artist} from the album ${song.album} (${song.duration})
-                        <button class="deleteSongBtn btn-sm" data-playlist-index="${index}" data-song-index="${songIndex}">Delete</button>
-                        <button class="playSongBtn btn-sm" data-song-id="${song.id}">Play</button>
+                        <strong>${song.name}</strong> by ${song.artist} from the album ${song.album}
+                        <div class="buttonContainer">
+                            <button class="playSongBtn btn-sm" data-song-id="${song.id}">Play</button>
+                            <button class="deleteSongBtn btn-sm" data-playlist-index="${index}" data-song-index="${songIndex}">Delete</button>
+                        </div>
                     </li>
                 `).join('')}
             </ul>
@@ -124,6 +128,30 @@ playlistsContainer.addEventListener('click', (event) => {
         playSong(songId);
     }
 });
+
+// Function to get the current available playlists
+export function getPlaylists() {
+    return playlists;
+}
+
+// Function to add a song to a selected playlist
+export async function addSongToPlaylist(songId, playlistName) {
+    const songInfo = await searchTrackInfo(songId);
+    const playlist = playlists.find(pl => pl.name === playlistName);
+
+    if (playlist) {
+        playlist.songs.push({
+            name: songInfo.name,
+            artist: songInfo.artist,
+            album: songInfo.album,
+            id: songInfo.id
+        });
+        savePlaylists();
+        renderPlaylists();
+    } else {
+        console.error('Playlist not found');
+    }
+}
 
 // Initial render of playlists
 renderPlaylists();

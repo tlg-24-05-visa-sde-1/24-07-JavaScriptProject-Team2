@@ -39,8 +39,6 @@ h1 {
     margin-top: 50px;
 }
 
-
-
 .playlist {
     border: 1px solid #ddd;
     padding: 10px;
@@ -51,6 +49,18 @@ h1 {
 .playlist h2 {
     margin: 0;
     display: inline;
+    font-size: 1.2em; /* Adjust as needed */
+    
+}
+
+.playlist .buttonContainer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.playlist .buttonContainer button {
+    margin-left: 10px;
 }
 
 .playlist button {
@@ -70,4 +80,5 @@ h1 {
 
 .playlist li button {
     margin-left: 10px;
+    
 }

@@ -25,3 +25,23 @@ export async function searchSpotify(type, query) {
     const data = await response.json();
     return data;
 }
+
+// Function to get track information by track ID
+export async function searchTrackInfo(trackId) {
+    const token = await getToken();
+    const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await response.json();
+
+    const trackInfo = {
+        name: data.name,
+        artist: data.artists.map(artist => artist.name).join(', '),
+        album: data.album.name,
+        duration: data.duration_ms,
+        id: data.id
+    };
+
+    return trackInfo;
+}
