@@ -109,3 +109,39 @@ h1 {
 .playlist li button:hover {
     color: #007bff;
 }
+
+/* Hide album art and artist/band on small screens */
+@media (max-width: 767.98px) {
+    .album-art {
+      display: none;
+    }
+  
+    .playlist-table-col.d-none.d-md-block {
+      display: none !important;
+    }
+  }
+  
+  /* Ensure proper spacing and alignment */
+  .playlist-table-col {
+    flex: 1;
+  }
+  
+  .playlist-table-col.me-2 {
+    margin-right: 0.5rem;
+  }
+  
+  .buttonContainer.ms-auto {
+    margin-left: auto;
+  }
+  
+  ul {
+    padding: 0;
+    list-style-type: none;
+  }
+  
+  ul li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  

@@ -54,13 +54,19 @@ function renderPlaylists() {
             </div>
             <div class="playlist-table">
                 <div class="playlist-table-header">
+                    <div class="playlist-table-col">Album Art</div>
                     <div class="playlist-table-col">Name</div>
                     <div class="playlist-table-col">Artist/Band</div>
                 </div>
                 <ul>
                     ${playlist.songs.map((song, songIndex) => `
-                        <li>
-                            <div class="buttonContainer">
+                        <li class="d-flex align-items-center">
+                            <div class="playlist-table-col">
+                                <img src="https://via.placeholder.com/50" alt="${song.album}" class="album-art img-fluid d-none d-md-block">
+                            </div>
+                            <div class="playlist-table-col">${song.name}</div>
+                            <div class="playlist-table-col d-none d-md-block">${song.artist}</div>
+                            <div class="buttonContainer ms-auto">
                                 <button class="playSongBtn btn-sm" data-song-id="${song.id}">
                                     <i class="fas fa-play"></i>
                                 </button>
@@ -68,8 +74,6 @@ function renderPlaylists() {
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
-                            <div class="playlist-table-col">${song.name}</div>
-                            <div class="playlist-table-col">${song.artist}</div>
                         </li>
                     `).join('')}
                 </ul>
