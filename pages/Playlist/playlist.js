@@ -1,4 +1,4 @@
-import { getSpotifyPlaylist, getAlbumArt } from '../spotifySearch.js';
+import { getSpotifyPlaylist, getAlbumArt } from '../../spotifySearch.js';
 
 const playlistsContainer = document.getElementById('playlists');
 const createPlaylistForm = document.getElementById('createPlaylistForm');
