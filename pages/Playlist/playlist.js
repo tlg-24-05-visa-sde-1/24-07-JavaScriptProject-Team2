@@ -1,12 +1,14 @@
-import { getSpotifyPlaylist, getAlbumArt } from "../../spotifySearch.js";
+import { getSpotifyPlaylist, displayAlbumArt, searchTrackInfo } from "./spotifySearch.js";
 
 const playlistsContainer = document.getElementById("playlists");
 const createPlaylistForm = document.getElementById("createPlaylistForm");
 let playlists = [];
 let savedFeaturedPlaylists = [];
 
+// ----------------- Local Storage Functions -------------------
+
 // Function to check and load local storage data
-function checkLocalStorage() {
+async function checkLocalStorage() {
   playlists = JSON.parse(localStorage.getItem("playlists")) || [];
   savedFeaturedPlaylists = JSON.parse(localStorage.getItem("jampactPlaylists")) || [];
 
@@ -20,12 +22,19 @@ function checkLocalStorage() {
 
   // Check and add any saved featured playlists into playlists
   if (savedFeaturedPlaylists.length > 0) {
-    addSavedFeaturedPlaylists(savedFeaturedPlaylists).then(() => {
-      clearSavedFeaturedPlaylists();
-    });
+    await addSavedFeaturedPlaylists(savedFeaturedPlaylists);
+    clearSavedFeaturedPlaylists();
   }
 
+  // Check for selectedTrackURI and add to "Playlist - From Search"
+  await addTracksFromLocalStorage();
+
   renderPlaylists();
+}
+
+// Save playlists to local storage
+function savePlaylists() {
+  localStorage.setItem("playlists", JSON.stringify(playlists));
 }
 
 // Clear saved featured playlists
@@ -33,6 +42,8 @@ function clearSavedFeaturedPlaylists() {
   savedFeaturedPlaylists = [];
   localStorage.setItem("jampactPlaylists", JSON.stringify(savedFeaturedPlaylists));
 }
+
+// ------------- Spotify Playlist Functions ----------------------
 
 // Add saved featured playlists
 async function addSavedFeaturedPlaylists(playlistIds) {
@@ -48,38 +59,59 @@ async function addSpotifyPlaylist(playlistId) {
     const limitedSongs = newPlaylist.songs.slice(0, 10); // Limiting songs to 10
     playlists.push({ ...newPlaylist, songs: limitedSongs, id: playlistId }); // Store playlistId to avoid duplicates
     savePlaylists();
-    addPlaylistToDOM(newPlaylist, playlists.length - 1);
+    displayPlaylist(newPlaylist, playlists.length - 1);
   } catch (error) {
     console.error("Error adding featured playlist:", error);
   }
 }
 
-// Save playlists to local storage
-function savePlaylists() {
-  localStorage.setItem("playlists", JSON.stringify(playlists));
+// Play a song using Spotify player
+function playSong(songId) {
+  const spotifyPlayer = document.getElementById("spotify-player");
+  spotifyPlayer.innerHTML = `
+    <iframe src="https://open.spotify.com/embed/track/${songId}" width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+  `;
 }
 
-// Function to get album art and display it
-async function displayAlbumArt(songId) {
-  try {
-    const albumArtUrl = await getAlbumArt(songId);
-    return albumArtUrl;
-  } catch (error) {
-    console.error("Error fetching album art:", error);
-    return "https://via.placeholder.com/100"; // Placeholder in case of error
+// Add tracks from local storage to "Playlist - From Search"
+async function addTracksFromLocalStorage() {
+  const selectedTrackURI = localStorage.getItem("selectedTrackURI");
+  if (selectedTrackURI) {
+    const trackURIs = selectedTrackURI.split(",");
+    const trackIds = trackURIs.map(uri => uri.replace("spotify:track:", ""));
+
+    const trackInfos = [];
+    for (const trackId of trackIds) {
+      const trackInfo = await searchTrackInfo(trackId);
+      if (trackInfo) {
+        trackInfos.push(trackInfo);
+      }
+    }
+
+    if (trackInfos.length > 0) {
+      let playlist = playlists.find(pl => pl.name === "Playlist - From Search");
+      if (!playlist) {
+        playlist = { name: "Playlist - From Search", songs: [], id: `user-search-${Date.now()}` };
+        playlists.push(playlist);
+      }
+      playlist.songs.push(...trackInfos);
+      savePlaylists();
+    }
   }
 }
 
-// Display playlists on the screen
+// ----------------------- DOM Manipulation Functions ----------------------
+
+// Display all playlists on the screen
 function renderPlaylists() {
   playlistsContainer.innerHTML = "";
   playlists.forEach((playlist, index) => {
-    addPlaylistToDOM(playlist, index);
+    displayPlaylist(playlist, index);
   });
 }
 
-// Add a playlist to the DOM
-async function addPlaylistToDOM(playlist, index) {
+// Display 1 playlist on the screen
+async function displayPlaylist(playlist, index) {
   const playlistDiv = document.createElement("div");
   playlistDiv.className = "playlist";
   playlistDiv.innerHTML = `
@@ -133,21 +165,8 @@ async function addPlaylistToDOM(playlist, index) {
   }
 }
 
-// Add a song
-function addSong(index) {
-  localStorage.setItem("currentPlaylistIndex", index);
-  window.location.href = "../Search/search.html"; // Navigate to search page
-}
-
-// Delete a song
-function deleteSong(playlistIndex, songIndex) {
-  playlists[playlistIndex].songs.splice(songIndex, 1);
-  savePlaylists();
-  updatePlaylistInDOM(playlistIndex);
-}
-
-// Update playlist in the DOM
-async function updatePlaylistInDOM(playlistIndex) {
+// Update playlist on the screen
+async function updatePlaylist(playlistIndex) {
   const playlistDiv = playlistsContainer.children[playlistIndex];
   const playlist = playlists[playlistIndex];
   const ulElement = playlistDiv.querySelector("ul");
@@ -177,52 +196,73 @@ async function updatePlaylistInDOM(playlistIndex) {
   }
 }
 
-// Play a song using Spotify player
-function playSong(songId) {
-  const spotifyPlayer = document.getElementById("spotify-player");
-  spotifyPlayer.innerHTML = `
-    <iframe src="https://open.spotify.com/embed/track/${songId}" width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-  `;
+// Remove playlist from the screen
+function removePlaylist(index) {
+  const playlistDiv = playlistsContainer.children[index];
+  playlistsContainer.removeChild(playlistDiv);
+  updatePlaylistIndices();
+}
+
+// Updating the data-index attributes after a playlist is deleted
+function updatePlaylistIndices() {
+  // Retrieve all child elements (assumed to be playlist divs) within the playlistsContainer
+  const playlistDivs = playlistsContainer.children;
+
+  // Loop through each playlist div
+  for (let i = 0; i < playlistDivs.length; i++) {
+    // Get the current playlist div
+    const playlistDiv = playlistDivs[i];
+
+    // Select the buttons within the current playlist div
+    const showHideBtn = playlistDiv.querySelector(".showHideBtn");
+    const addSongBtn = playlistDiv.querySelector(".addSongBtn");
+    const deletePlaylistBtn = playlistDiv.querySelector(".deletePlaylistBtn");
+
+    // Set attributes for the show/hide button
+    showHideBtn.setAttribute("data-bs-target", `#collapsePlaylist${i}`);
+    showHideBtn.setAttribute("aria-controls", `collapsePlaylist${i}`);
+
+    // Set the data-index attribute for the add song button
+    addSongBtn.setAttribute("data-index", i);
+
+    // Set the data-index attribute for the delete playlist button
+    deletePlaylistBtn.setAttribute("data-index", i);
+  }
+}
+
+// ---------------------------- Playlist Modification Functions -----------------------------------
+
+// Add a song
+function addSong(index) {
+  localStorage.setItem("currentPlaylistIndex", index);
+  window.location.href = "../Search/search.html"; // Navigate to search page
+}
+
+// Delete a song
+function deleteSong(playlistIndex, songIndex) {
+  playlists[playlistIndex].songs.splice(songIndex, 1);
+  savePlaylists();
+  updatePlaylist(playlistIndex);
 }
 
 // Delete a playlist
 function deletePlaylist(index) {
   playlists.splice(index, 1);
   savePlaylists();
-  removePlaylistFromDOM(index);
+  removePlaylist(index);
 }
 
-// Remove playlist from the DOM
-function removePlaylistFromDOM(index) {
-  const playlistDiv = playlistsContainer.children[index];
-  playlistsContainer.removeChild(playlistDiv);
-  updateDOMIndices();
-}
-
-// Update the data-index attributes in the DOM after deletion
-function updateDOMIndices() {
-  const playlistDivs = playlistsContainer.children;
-  for (let i = 0; i < playlistDivs.length; i++) {
-    const playlistDiv = playlistDivs[i];
-    const showHideBtn = playlistDiv.querySelector(".showHideBtn");
-    const addSongBtn = playlistDiv.querySelector(".addSongBtn");
-    const deletePlaylistBtn = playlistDiv.querySelector(".deletePlaylistBtn");
-    showHideBtn.setAttribute("data-bs-target", `#collapsePlaylist${i}`);
-    showHideBtn.setAttribute("aria-controls", `collapsePlaylist${i}`);
-    addSongBtn.setAttribute("data-index", i);
-    deletePlaylistBtn.setAttribute("data-index", i);
-  }
-}
+// ------------------- Event Listeners -------------------------------
 
 // Create a new playlist
 createPlaylistForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const playlistName = document.getElementById("playlistName").value;
   if (playlistName) {
-    const newPlaylist = { name: playlistName, songs: [], id: `user-${Date.now()}` }; // Assign a unique ID to user-created playlists
+    const newPlaylist = { name: playlistName, songs: [], id: `user-${Date.now()}` }; // Assigning a unique ID to user-created playlists
     playlists.push(newPlaylist);
     savePlaylists();
-    addPlaylistToDOM(newPlaylist, playlists.length - 1);
+    displayPlaylist(newPlaylist, playlists.length - 1);
     createPlaylistForm.reset();
   }
 });
