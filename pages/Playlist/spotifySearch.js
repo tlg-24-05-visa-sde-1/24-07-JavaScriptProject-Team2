@@ -68,14 +68,15 @@ export async function getSpotifyPlaylist(playlistId) {
     return playlistInfo;
 }
 
-// Function to get album art for a given song ID
-export async function getAlbumArt(trackId) {
-    const token = await getToken();
-    const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
-        method: 'GET',
-        headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await response.json();
-    const albumArtUrl = data.album.images[0].url; // Get the first (usually the largest) image URL
+
+
+// Function to get and display album art
+export async function displayAlbumArt(songId) {
+  try {
+    const albumArtUrl = await getAlbumArt(songId);
     return albumArtUrl;
+  } catch (error) {
+    console.error("Error fetching album art:", error);
+    return "https://via.placeholder.com/100"; // Placeholder in case of error
+  }
 }
