@@ -46,6 +46,7 @@ export async function searchTrackInfo(trackId) {
     return trackInfo;
 }
 
+
 // Function to get playlist information by playlist ID
 export async function getSpotifyPlaylist(playlistId) {
     const token = await getToken();
@@ -68,7 +69,17 @@ export async function getSpotifyPlaylist(playlistId) {
     return playlistInfo;
 }
 
-
+// Function to get album art for a given song ID
+export async function getAlbumArt(trackId) {
+    const token = await getToken();
+    const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await response.json();
+    const albumArtUrl = data.album.images[0].url; // Get the first (usually the largest) image URL
+    return albumArtUrl;
+}
 
 // Function to get and display album art
 export async function displayAlbumArt(songId) {
