@@ -6,10 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
             searchMusic(query);
         }
     });
+
+    // Hide the results section initially
+    document.getElementById('results-section').style.display = 'none';
 });
 
 async function searchMusic(query) {
-    const url = `https://spotify23.p.rapidapi.com/search/?q=${encodeURIComponent(query)}&type=multi&offset=0&limit=10&numberOfTopResults=10`;
+    const url = `https://spotify23.p.rapidapi.com/search/?q=${encodeURIComponent(query)}&type=multi&offset=0&limit=20&numberOfTopResults=20`;
     const options = {
         method: 'GET',
         headers: {
@@ -28,43 +31,90 @@ async function searchMusic(query) {
 }
 
 function displayResults(data) {
-    const resultsContainer = document.getElementById('search-results');
+    const resultsContainer = document.getElementById('search-sections');
     resultsContainer.innerHTML = ''; // Clear previous results
+
+    // Column creation
+    const columns = ['Tracks', 'Similar Artists', 'Albums'];
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    columns.forEach(columnName => {
+        const col = document.createElement('div');
+        col.className = 'col';
+        const heading = document.createElement('h4');
+        heading.textContent = columnName;
+        col.appendChild(heading);
+        const list = document.createElement('ul');
+        list.className = 'list-unstyled';
+        col.appendChild(list);
+        row.appendChild(col);
+    });
+
+    resultsContainer.appendChild(row);
+
+    // Function to remove duplicate results
+    function removeDuplicates(array, keyFunc) {
+        const seen = new Set();
+        return array.filter(item => {
+            const key = keyFunc(item);
+            if (!seen.has(key)) {
+                seen.add(key);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    // Create list items in search results
+    function createListItem(text) {
+        const li = document.createElement('li');
+        li.textContent = text;
+        li.className = 'result-item';
+        return li;
+    }
+
+    // Populate columns with search results
 
     // Display tracks
     if (data.tracks && data.tracks.items) {
-        data.tracks.items.forEach(item => {
+        const tracksList = row.children[0].querySelector('ul');
+        const uniqueTracks = removeDuplicates(data.tracks.items, 
+            item => `${item.data.name}-${item.data.artists.items[0].profile.name}`);
+        uniqueTracks.forEach(item => {
             if (item.data && item.data.name && item.data.artists && item.data.artists.items && item.data.artists.items[0] && item.data.artists.items[0].profile && item.data.artists.items[0].profile.name) {
-                const resultItem = document.createElement('div');
-                resultItem.classList.add('result-item');
-                resultItem.textContent = `${item.data.name} by ${item.data.artists.items[0].profile.name}`;
-                resultsContainer.appendChild(resultItem);
-            }
+                const li = createListItem(`${item.data.name} by ${item.data.artists.items[0].profile.name}`);
+                tracksList.appendChild(li);
+            } 
         });
     }
 
     // Display artists
     if (data.artists && data.artists.items) {
-        data.artists.items.forEach(item => {
+        const artistsList = row.children[1].querySelector('ul');
+        const uniqueArtists = removeDuplicates(data.artists.items, 
+            item => item.data.profile.name);
+        uniqueArtists.forEach(item => {
             if (item.data && item.data.profile && item.data.profile.name) {
-                const resultItem = document.createElement('div');
-                resultItem.classList.add('result-item');
-                resultItem.textContent = item.data.profile.name;
-                resultsContainer.appendChild(resultItem);
+                const li = createListItem(item.data.profile.name);
+                artistsList.appendChild(li);
             }
         });
     }
 
     // Display albums
     if (data.albums && data.albums.items) {
-        data.albums.items.forEach(item => {
+        const albumsList = row.children[2].querySelector('ul');
+        const uniqueAlbums = removeDuplicates(data.albums.items, 
+            item => `${item.data.name}-${item.data.artists.items[0].profile.name}`);
+        uniqueAlbums.forEach(item => {
             if (item.data && item.data.name && item.data.artists && item.data.artists.items && item.data.artists.items[0] && item.data.artists.items[0].profile && item.data.artists.items[0].profile.name) {
-                const resultItem = document.createElement('div');
-                resultItem.classList.add('result-item');
-                resultItem.textContent = `${item.data.name} by ${item.data.artists.items[0].profile.name}`;
-                resultsContainer.appendChild(resultItem);
+                const li = createListItem(`${item.data.name} by ${item.data.artists.items[0].profile.name}`);
+                albumsList.appendChild(li);
             }
         });
     }
-}
 
+    // Show results section
+    document.getElementById('results-section').style.display = 'block';
+}
