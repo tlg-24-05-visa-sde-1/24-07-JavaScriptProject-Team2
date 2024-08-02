@@ -100,7 +100,8 @@ async function displayResults(data) {
                         name: item.data.artists.items[0].profile.name
                     },
                     track: {
-                        name: item.data.name
+                        name: item.data.name,
+                        uri: item.data.uri || ''
                     },
                     duration: item.data.duration?.totalMilliseconds
                 };
@@ -245,17 +246,28 @@ function populateDropdown(dropdown, data) {
         const previewButton = dropdown.querySelector('.btn-preview');
         const addToPlaylistButton = dropdown.querySelector('.btn-add-playlist');
 
-        previewButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent the dropdown from closing when clicking the button
-            // Add preview functionality here
-            console.log('Play preview clicked for:', track.name);
-        });
+        if (previewButton) {
+            previewButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent the dropdown from closing when clicking the button
+                // Add preview functionality here
+                console.log('Play preview clicked for:', track.name);
+            });
+        }
 
-        addToPlaylistButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent the dropdown from closing when clicking the button
-            // Add to playlist functionality here
-            console.log('Add to playlist clicked for:', track.name);
-        });
+        if (addToPlaylistButton) {
+            addToPlaylistButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent the dropdown from closing when clicking the button
+                // Save the track URI to local storage
+                if (track.uri) {
+                    localStorage.setItem('selectedTrackURI', track.uri);
+                    console.log('Track URI saved to local storage:', track.uri);
+                    alert('Track added to playlist!');
+                } else {
+                    console.log('No URI available for this track');
+                    alert('Unable to add track to playlist. No URI available.');
+                }
+            });
+        }
     } else if (data.type === 'artist') {
         dropdown.innerHTML = '<h5>Discography</h5>';
         if (data.albums.length === 0) {
