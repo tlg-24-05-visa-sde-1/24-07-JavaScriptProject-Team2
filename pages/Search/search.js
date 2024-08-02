@@ -6,11 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
             searchMusic(query);
         }
     });
-
+ 
     // Hide the results section initially
     document.getElementById('results-section').style.display = 'none';
 });
-
+ 
 async function searchMusic(query) {
     const url = `https://spotify23.p.rapidapi.com/search/?q=${encodeURIComponent(query)}&type=multi&offset=0&limit=20&numberOfTopResults=20`;
     const options = {
@@ -20,7 +20,7 @@ async function searchMusic(query) {
             'x-rapidapi-host': 'spotify23.p.rapidapi.com'
         }
     };
-
+ 
     try {
         const response = await fetch(url, options);
         const result = await response.json();
@@ -29,7 +29,7 @@ async function searchMusic(query) {
         console.error('Error fetching data:', error.message);
     }
 }
-
+ 
 async function getArtistAlbums(artistId) {
     const url = `https://spotify23.p.rapidapi.com/artist_albums/?id=${artistId}&offset=0&limit=100`;
     const options = {
@@ -42,7 +42,7 @@ async function getArtistAlbums(artistId) {
     const response = await fetch(url, options);
     return await response.json();
 }
-
+ 
 async function getAlbumTracks(albumId) {
     const url = `https://spotify23.p.rapidapi.com/album_tracks/?id=${albumId}&offset=0&limit=300`;
     const options = {
@@ -55,17 +55,17 @@ async function getAlbumTracks(albumId) {
     const response = await fetch(url, options);
     return await response.json();
 }
-
+ 
 async function displayResults(data) {
     console.log('Raw API response:', data);
     const resultsContainer = document.getElementById('search-sections');
     resultsContainer.innerHTML = ''; // Clear previous results
-
+ 
     // Column creation
     const columns = ['Tracks', 'Similar Artists', 'Albums'];
     const row = document.createElement('div');
     row.className = 'row';
-
+ 
     columns.forEach(columnName => {
         const col = document.createElement('div');
         col.className = 'col';
@@ -77,14 +77,14 @@ async function displayResults(data) {
         col.appendChild(list);
         row.appendChild(col);
     });
-
+ 
     resultsContainer.appendChild(row);
-
+ 
     // Display tracks
     if (data.tracks && data.tracks.items) {
         console.log('Displaying tracks:', data.tracks.items);
         const tracksList = row.children[0].querySelector('ul');
-        const uniqueTracks = removeDuplicates(data.tracks.items, 
+        const uniqueTracks = removeDuplicates(data.tracks.items,
             item => `${item.data.name}-${item.data.artists.items[0].profile.name}`);
         for (const item of uniqueTracks) {
             if (item.data && item.data.name && item.data.artists && item.data.artists.items && item.data.artists.items[0]) {
@@ -107,15 +107,15 @@ async function displayResults(data) {
                 };
                 const li = createListItem(`${item.data.name} by ${item.data.artists.items[0].profile.name}`, trackData);
                 tracksList.appendChild(li);
-            } 
+            }
         }
     }
-
+ 
     // Display artists
     if (data.artists && data.artists.items) {
         console.log('Displaying artists:', data.artists.items);
         const artistsList = row.children[1].querySelector('ul');
-        const uniqueArtists = removeDuplicates(data.artists.items, 
+        const uniqueArtists = removeDuplicates(data.artists.items,
             item => item.data.profile.name);
         for (const item of uniqueArtists) {
             if (item.data && item.data.profile && item.data.profile.name) {
@@ -130,12 +130,12 @@ async function displayResults(data) {
             }
         }
     }
-
+ 
     // Display albums
     if (data.albums && data.albums.items) {
         console.log('Displaying albums:', data.albums.items);
         const albumsList = row.children[2].querySelector('ul');
-        const uniqueAlbums = removeDuplicates(data.albums.items, 
+        const uniqueAlbums = removeDuplicates(data.albums.items,
             item => `${item.data.name}-${item.data.artists.items[0].profile.name}`);
         for (const item of uniqueAlbums) {
             if (item.data && item.data.name && item.data.artists && item.data.artists.items && item.data.artists.items[0] && item.data.artists.items[0].profile && item.data.artists.items[0].profile.name) {
@@ -155,11 +155,11 @@ async function displayResults(data) {
             }
         }
     }
-
+ 
     // Show results section
     document.getElementById('results-section').style.display = 'block';
 }
-
+ 
 function removeDuplicates(array, keyFunc) {
     const seen = new Set();
     return array.filter(item => {
@@ -171,26 +171,26 @@ function removeDuplicates(array, keyFunc) {
         return false;
     });
 }
-
+ 
 function createListItem(text, data) {
     const li = document.createElement('li');
     li.className = 'result-item';
-    
+   
     const textDiv = document.createElement('div');
     textDiv.className = 'result-item-text';
     textDiv.textContent = text;
-
+ 
     const toggleIcon = document.createElement('span');
     toggleIcon.textContent = '▼';
     toggleIcon.style.marginLeft = '10px';
     textDiv.appendChild(toggleIcon);
-
+ 
     li.appendChild(textDiv);
-
+ 
     li.addEventListener('click', () => toggleDropdown(li, data, toggleIcon));
     return li;
 }
-
+ 
 function toggleDropdown(li, data, toggleIcon) {
     let dropdown = li.querySelector('.dropdown-content');
     if (dropdown) {
@@ -204,14 +204,14 @@ function toggleDropdown(li, data, toggleIcon) {
         toggleIcon.textContent = '▲';
     }
 }
-
+ 
 function populateDropdown(dropdown, data) {
     if (data.type === 'track') {
         const album = data.album || {};
         const artist = data.artist || {};
         const track = data.track || {};
         const duration = formatDuration(data.duration);
-
+ 
         dropdown.innerHTML = `
             <div class="dropdown-section">
                 <h5>Album</h5>
@@ -241,11 +241,11 @@ function populateDropdown(dropdown, data) {
                 <div class="dropdown-item">${duration}</div>
             </div>
         `;
-
+ 
         // Add event listeners to the buttons
         const previewButton = dropdown.querySelector('.btn-preview');
         const addToPlaylistButton = dropdown.querySelector('.btn-add-playlist');
-
+ 
         if (previewButton) {
             previewButton.addEventListener('click', (e) => {
                 e.stopPropagation(); // Prevent the dropdown from closing when clicking the button
@@ -253,7 +253,7 @@ function populateDropdown(dropdown, data) {
                 console.log('Play preview clicked for:', track.name);
             });
         }
-
+ 
         if (addToPlaylistButton) {
             addToPlaylistButton.addEventListener('click', (e) => {
                 e.stopPropagation(); // Prevent the dropdown from closing when clicking the button
@@ -304,21 +304,21 @@ function populateDropdown(dropdown, data) {
             <div class="dropdown-section">
                 <h5>Tracks</h5>
                 <ol class="dropdown-item">
-                  ${album.tracks && album.tracks.length > 0 ? 
-                    album.tracks.map(track => `<li>${track.name || 'Unknown Track'} (${formatDuration(track.duration_ms)})</li>`).join('') : 
+                  ${album.tracks && album.tracks.length > 0 ?
+                    album.tracks.map(track => `<li>${track.name || 'Unknown Track'} (${formatDuration(track.duration_ms)})</li>`).join('') :
                     '<li>No tracks available</li>'}
                 </ol>
             </div>
         `;
     }
 }
-
+ 
 function formatDuration(milliseconds) {
     if(!milliseconds) return 'N/A';
-
+ 
     const totalSeconds = Math.floor(milliseconds / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-
+ 
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
