@@ -47,9 +47,12 @@ document.getElementById('registrationForm').addEventListener('submit', function(
             password: password,
             avatar: avatar
         };
+        // Retrieves existing user data from local storage
+        let storedUsers = JSON.parse(localStorage.getItem('usersData')) || [];
+        storedUsers.push(userData);
         
-        /* Saves user data to local storage, displays success message, and resets form fields */
-        localStorage.setItem('userData', JSON.stringify(userData));
+        /* Saves updated user data array to local storage, displays success message, and resets form fields */
+        localStorage.setItem('usersData', JSON.stringify(storedUsers));
         alert('Registration Successful');
         document.getElementById('registrationForm').reset();
     }
