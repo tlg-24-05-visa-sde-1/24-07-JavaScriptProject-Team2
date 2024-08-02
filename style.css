@@ -1,16 +1,22 @@
 /* General body styling for all pages */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    font-family: 'Bebas Neue', sans-serif;
+    background-color: #000;
+    color: #fff;
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background-image: url(./images/JMP23.webp);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 h1 {
     text-align: center;
+    color: #ff69b4;
 }
 
 /* General container styling */
@@ -19,8 +25,8 @@ h1 {
     max-width: 1200px;
     margin: 50px auto;
     padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.975);
     border-radius: 8px;
 }
 
@@ -44,17 +50,25 @@ h1 {
     max-width: 1200px;
     margin: auto;
     padding: 20px;
-    background-color: #fff;
+    background-color: #b84084;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     margin-top: 50px;
+    text-align: center;
+}
+
+#album-art {
+    max-width: 300px;
+    margin: 0 auto 20px auto;
 }
 
 .playlist {
-    border: 1px solid #ddd;
+    border: 1px solid #ff69b4;
     padding: 10px;
     margin: 10px 0;
     border-radius: 4px;
+    background-color: whitesmoke;
+    color: #ff69b4;
 }
 
 .playlist-header {
@@ -67,6 +81,7 @@ h1 {
 .playlist-header h2 {
     margin: 0;
     font-size: 1.2em;
+    color: #ff69b4;
 }
 
 .playlist-table {
@@ -86,6 +101,7 @@ h1 {
 .playlist ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
 
 .playlist li {
@@ -93,6 +109,9 @@ h1 {
     align-items: center;
     justify-content: space-between;
     padding: 10px 0;
+    background-color: #000;
+    border-radius: 5px;
+    margin-bottom: 10px;
 }
 
 .buttonContainer {
@@ -103,11 +122,45 @@ h1 {
     border: none;
     background: none;
     cursor: pointer;
-    color: #333;
+    color: #ff69b4;
 }
 
 .playlist li button:hover {
     color: #007bff;
+}
+
+.btn {
+    background-color: #ff69b4;
+    color: #000;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #ff85c1;
+}
+
+.btn-sm {
+    padding: 4px;
+    font-size: 12px;
+}
+
+nav {
+    background-color: #333;
+}
+
+.navbar-image img {
+    filter: invert(100%);
+    color: #ff69b4;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+#spotify-player iframe {
+    width: 100%;
+    height: 80px;
 }
 
 /* Hide album art and artist/band on small screens */
@@ -118,6 +171,7 @@ h1 {
   
     .playlist-table-col.d-none.d-md-block {
       display: none !important;
+      text-decoration-color: #fff;
     }
   }
   

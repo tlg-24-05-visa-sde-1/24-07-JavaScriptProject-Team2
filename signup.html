@@ -11,16 +11,20 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!-- Main container centered both vertically and horizontally -->
     <main class="d-flex justify-content-center align-items-center vh-100">
       <!-- Registration form section -->
       <section class="registration-form p-4 rounded shadow bg-white">
-        <h2 class="text-center mb-4">JamPact Sign Up</h2>
+        <h2 class="text-center mb-4 text-black">JamPact Sign Up</h2>
         <form id="registrationForm">
           <!-- Email input field with label and error message container -->
-          <div class="form-group">
+          <div class="form-group text-black">
             <label for="email">Email</label>
             <input
               type="email"
@@ -32,7 +36,7 @@
             <small id="emailError" class="form-text text-danger"></small>
           </div>
           <!-- Password input field with label and error message container -->
-          <div class="form-group">
+          <div class="form-group text-black">
             <label for="password">Password</label>
             <input
               type="password"
@@ -43,23 +47,13 @@
             />
             <small id="passwordError" class="form-text text-danger"></small>
           </div>
-          <!-- File input for avatar with label -->
-          <div class="form-group">
-            <label for="avatar">Avatar</label>
-            <input
-              type="file"
-              id="avatar"
-              class="form-control-file"
-              accept="image/*"
-            />
-          </div>
           <!-- Submit Button -->
           <button type="submit" class="btn btn-success btn-block">
             Submit
           </button>
         </form>
         <!-- Link to the login page -->
-        <p class="text-center mt-3">
+        <p class="text-center mt-3 text-black">
           Already have an account? <a href="login.html">Login here</a>
         </p>
       </section>
