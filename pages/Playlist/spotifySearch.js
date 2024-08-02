@@ -46,6 +46,7 @@ export async function searchTrackInfo(trackId) {
     return trackInfo;
 }
 
+
 // Function to get playlist information by playlist ID
 export async function getSpotifyPlaylist(playlistId) {
     const token = await getToken();
@@ -78,4 +79,15 @@ export async function getAlbumArt(trackId) {
     const data = await response.json();
     const albumArtUrl = data.album.images[0].url; // Get the first (usually the largest) image URL
     return albumArtUrl;
+}
+
+// Function to get and display album art
+export async function displayAlbumArt(songId) {
+  try {
+    const albumArtUrl = await getAlbumArt(songId);
+    return albumArtUrl;
+  } catch (error) {
+    console.error("Error fetching album art:", error);
+    return "https://via.placeholder.com/100"; // Placeholder in case of error
+  }
 }
