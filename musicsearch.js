@@ -225,13 +225,37 @@ function populateDropdown(dropdown, data) {
             </div>
             <div class="dropdown-section">
                 <h5>Track</h5>
-                <div class="dropdown-item">${track.name || 'N/A'}</div>
+                <div class="dropdown-item">
+                    <div class="track-info">
+                        <span>${track.name || 'N/A'}</span>
+                        <div class="track-buttons">
+                            <button class="btn btn-small btn-preview">Play Preview</button>
+                            <button class="btn btn-small btn-add-playlist">Add to Playlist</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="dropdown-section">
                 <h5>Duration</h5>
                 <div class="dropdown-item">${duration}</div>
             </div>
         `;
+
+        // Add event listeners to the buttons
+        const previewButton = dropdown.querySelector('.btn-preview');
+        const addToPlaylistButton = dropdown.querySelector('.btn-add-playlist');
+
+        previewButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent the dropdown from closing when clicking the button
+            // Add preview functionality here
+            console.log('Play preview clicked for:', track.name);
+        });
+
+        addToPlaylistButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent the dropdown from closing when clicking the button
+            // Add to playlist functionality here
+            console.log('Add to playlist clicked for:', track.name);
+        });
     } else if (data.type === 'artist') {
         dropdown.innerHTML = '<h5>Discography</h5>';
         if (data.albums.length === 0) {
