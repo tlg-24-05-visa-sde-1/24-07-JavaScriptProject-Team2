@@ -151,12 +151,6 @@ nav {
     background-color: #333;
 }
 
-.navbar-image img {
-    filter: invert(100%);
-    color: #ff69b4;
-    padding: 5px;
-    border-radius: 50%;
-}
 
 #spotify-player iframe {
     width: 100%;
