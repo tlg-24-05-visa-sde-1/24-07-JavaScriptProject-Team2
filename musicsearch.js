@@ -69,22 +69,35 @@ function displayResults(data) {
     // Create list items in search results
     function createListItem(text, data) {
         const li = document.createElement('li');
-        li.textContent = text;
         li.className = 'result-item';
-        li.addEventListener('click', () => toggleDropdown(li, data));
+        
+        const textDiv = document.createElement('div');
+        textDiv.className = 'result-item-text';
+        textDiv.textContent = text;
+
+        const toggleIcon = document.createElement('span');
+        toggleIcon.textContent = '▼';
+        toggleIcon.style.marginLeft = '10px';
+        textDiv.appendChild(toggleIcon);
+
+        li.appendChild(textDiv);
+
+        li.addEventListener('click', () => toggleDropdown(li, data, toggleIcon));
         return li;
     }
 
     // Toggle dropdown for result items
-    function toggleDropdown(li, data) {
+    function toggleDropdown(li, data, toggleIcon) {
         let dropdown = li.querySelector('.dropdown-content');
         if (dropdown) {
             dropdown.remove();
+            toggleIcon.textContent = '▼';
         } else {
             dropdown = document.createElement('div');
             dropdown.className = 'dropdown-content';
             populateDropdown(dropdown, data);
             li.appendChild(dropdown);
+            toggleIcon.textContent = '▲';
         }
     }
 
@@ -159,6 +172,7 @@ function displayResults(data) {
 
     // Display tracks
     if (data.tracks && data.tracks.items) {
+        console.log('Displaying tracks:', data.tracks.items);
         const tracksList = row.children[0].querySelector('ul');
         const uniqueTracks = removeDuplicates(data.tracks.items, 
             item => `${item.data.name}-${item.data.artists.items[0].profile.name}`);
@@ -186,6 +200,7 @@ function displayResults(data) {
 
     // Display artists
     if (data.artists && data.artists.items) {
+        console.log('Displaying artists:', data.artists.items);
         const artistsList = row.children[1].querySelector('ul');
         const uniqueArtists = removeDuplicates(data.artists.items, 
             item => item.data.profile.name);
@@ -206,6 +221,7 @@ function displayResults(data) {
 
     // Display albums
     if (data.albums && data.albums.items) {
+        console.log('Displaying albums:', data.albums.items);
         const albumsList = row.children[2].querySelector('ul');
         const uniqueAlbums = removeDuplicates(data.albums.items, 
             item => `${item.data.name}-${item.data.artists.items[0].profile.name}`);
